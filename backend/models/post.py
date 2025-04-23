@@ -1,10 +1,15 @@
+import datetime
 from models import db
 
 
 class Post(db.Model):
-    __tablename__ = "posts"
+    __tablename__ = 'post'
+
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    channel_id = db.Column(db.Integer, db.ForeignKey("channels.id"), nullable=False)
-    text = db.Column(db.Text, nullable=False)
-    status = db.Column(db.String(20), default="draft")
+    autor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    text = db.Column(db.Text, nullable=False)  # Markdown текст
+    image_path = db.Column(db.String(1024))  # Устарело, можно не использовать
+    time_publication = db.Column(db.DateTime, default=datetime.utcnow)
+    chanal_id = db.Column(db.Integer, db.ForeignKey('channel.id'), nullable=False)
+
+    media = db.relationship('Media', backref='post', lazy=True)
