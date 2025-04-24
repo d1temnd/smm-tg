@@ -3,6 +3,10 @@ from botocore.client import Config
 from flask import Flask
 
 
+class General_conf:
+    role = ['admin', 'editor', 'user']
+
+
 class app_conf:
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://myuser:mypassword@localhost:5432/smm'
