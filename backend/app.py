@@ -5,15 +5,24 @@ from models.channel import Channel
 from models.post import Post
 from models.media import Media
 from api import register_routes
-
+from broker.consumer import get_tg
+from threading import Thread
+from utils.check_send import check_send_loop
 
 db.init_app(app_conf.app)
 register_routes(app_conf.app)
 
-if __name__ == '__main__':
+
+def main():
     with app_conf.app.app_context():
         
         db.create_all()
         print("Таблицы созданы:", list(db.metadata.tables.keys()))
     
-    app_conf.app.run(debug=True, host="0.0.0.0")
+    Thread(target=get_tg, daemon=True, name="get_tg").start()
+    Thread(target=check_send_loop, daemon=True, name="check_send_loop").start()
+    app_conf.app.run(debug=False, host="0.0.0.0")
+
+
+if __name__ == '__main__':
+    main()

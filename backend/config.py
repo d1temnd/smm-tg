@@ -1,6 +1,11 @@
 import boto3
+import os
+from pika import ConnectionParameters
 from botocore.client import Config
 from flask import Flask
+from flask_cors import CORS
+import logging
+from logging.handlers import RotatingFileHandler
 
 
 class General_conf:
@@ -9,9 +14,14 @@ class General_conf:
 
 class app_conf:
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://myuser:mypassword@localhost:5432/smm'
+    CORS(app, supports_credentials=True)
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@127.0.0.1:5432/smm')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SESSION_TYPE'] = 'filesystem'
+    app.config['SESSION_FILE_DIR'] = '/tmp/flask_session'
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['SECRET_KEY'] = 'your-secret-key'  # Секретный ключ для подписи сессий
 
 
@@ -19,6 +29,19 @@ class boto3_conf:
     S3_BUCKET_NAME = 'bucket-de6ad0'
     session = boto3.session.Session(profile_name='default')
     s3_client = session.client(
-   service_name='s3',
-   endpoint_url='https://s3.cloud.ru'
-)
+        service_name='s3',
+        endpoint_url='https://s3.cloud.ru'
+    )   
+
+class rabbitmq_conf:
+    connection_params = ConnectionParameters(
+        host=os.getenv('RABBITMQ_HOST', '127.0.0.1'),
+        port=int(os.getenv('RABBITMQ_PORT', 5672))
+    )
+
+class logging_conf:
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger(__name__)
