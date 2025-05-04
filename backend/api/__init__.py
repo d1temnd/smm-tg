@@ -7,6 +7,9 @@ from .post.create_post import posts_bp
 from .post.posts import get_posts_bp
 from .post.post_edit import edit_post_bp
 from .post.delete_post import del_post_bp
+from .telegram.pablish import publish_bp
+from .telegram.get_all_ch import get_ch_bp
+
 
 def register_routes(app):
     # app.register_blueprint(index_bp)
@@ -17,4 +20,5 @@ def register_routes(app):
     app.register_blueprint(get_posts_bp)
     app.register_blueprint(edit_post_bp)
     app.register_blueprint(del_post_bp)
-
+    app.register_blueprint(publish_bp)
+    app.register_blueprint(get_ch_bp)

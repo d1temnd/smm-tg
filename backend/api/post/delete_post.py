@@ -13,9 +13,9 @@ del_post_bp = Blueprint('del_post', __name__, url_prefix='/api/post')
 @role_required('admin', 'editor')
 def edit_post():
     data = request.json
-    post_id = data.get('id')
+    post_id = data.get('post_id')
 
-    post = db.session.query(Post).filter_by(id=data['post_id']).first()
+    post = db.session.query(Post).filter_by(id=post_id).first()
 
     if not post:
         return jsonify({'error': 'Post not found'}), 404

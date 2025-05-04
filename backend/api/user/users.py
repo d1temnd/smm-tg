@@ -61,16 +61,16 @@ def change_role(id):
 
 @users_bp.route('/user/delete', methods=['DELETE'])
 @role_required('admin')
-def edit_post():
+def delete_user():
     data = request.json
     user_id = data.get('id')
 
-    user = db.session.query(User).filter_by(id=data['user_id']).first()
+    user = db.session.query(User).filter_by(id=user_id).first()
 
     if not user:
-        return jsonify({'error': 'Post not found'}), 404
+        return jsonify({'error': 'User not found'}), 404
 
     db.session.delete(user)
     db.session.commit()
 
-    return jsonify({'message': 'User deleted successfully', 'post_id': user.id})
+    return jsonify({'message': 'User deleted successfully', 'user_id': user.id})
