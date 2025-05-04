@@ -3,6 +3,8 @@ import os
 from pika import ConnectionParameters
 from botocore.client import Config
 from flask import Flask
+from flask_caching import Cache
+import redis
 from flask_cors import CORS
 import logging
 from logging.handlers import RotatingFileHandler
@@ -23,6 +25,16 @@ class app_conf:
     app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['SECRET_KEY'] = 'your-secret-key'  # Секретный ключ для подписи сессий
+
+
+class redis_conf:
+    redis_host = os.getenv('REDIS_HOST', 'redis')
+    redis_port = int(os.getenv('REDIS_PORT', 6379))
+    redis_db = int(os.getenv('REDIS_DB', 1))
+
+    app_conf.app.config['CACHE_TYPE'] = 'redis'
+    app_conf.app.config['CACHE_REDIS'] = redis.StrictRedis(host=redis_host, port=redis_port, db=redis_db)
+    cache = Cache(app_conf.app)
 
 
 class boto3_conf:

@@ -17,6 +17,20 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    
+  redis:
+    image: redis:7.2
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -51,13 +65,21 @@ services:
     environment:
       - FLASK_APP=app.py
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/smm
+      
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
+
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=1
+
       - CORS_ORIGINS=http://localhost:8080
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - app-network
@@ -82,4 +104,6 @@ networks:
 
 volumes:
   postgres_data:
+    driver: local
+  redis_data:
     driver: local

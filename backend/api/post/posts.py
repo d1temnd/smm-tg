@@ -7,12 +7,14 @@ from models.post import Post
 from models import db
 from utils.is_role import role_required
 from utils.s3 import get_file_s3
+from config import redis_conf
 
 get_posts_bp = Blueprint('get_posts', __name__, url_prefix='/api/post')
 
 # TODO: Добавить возможность фильтрации по каналу
 # TODO: Добавить кэширование в redis
 @get_posts_bp.route('/all', methods=['GET'])
+@redis_conf.cache.cached(timeout=300)
 @role_required('admin', 'editor')
 def get_posts():
     posts = db.session.query(Post).all()
