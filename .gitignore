@@ -165,3 +165,5 @@ bot/settings.ini
 bot/.vscode/launch.json
 .idea
 .aws
+
+postgres_data/
