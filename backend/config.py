@@ -31,9 +31,16 @@ class redis_conf:
     redis_host = os.getenv('REDIS_HOST', 'redis')
     redis_port = int(os.getenv('REDIS_PORT', 6379))
     redis_db = int(os.getenv('REDIS_DB', 1))
+    redis_client = redis.StrictRedis(host=redis_host, port=redis_port, db=redis_db)
 
-    app_conf.app.config['CACHE_TYPE'] = 'redis'
-    app_conf.app.config['CACHE_REDIS'] = redis.StrictRedis(host=redis_host, port=redis_port, db=redis_db)
+    # app_conf.app.config['CACHE_TYPE'] = 'redis'
+    # app_conf.app.config['CACHE_REDIS'] = redis_client
+
+    app_conf.app.config['CACHE_TYPE'] = 'RedisCache'
+    app_conf.app.config['CACHE_REDIS_HOST'] = redis_host
+    app_conf.app.config['CACHE_REDIS_PORT'] = redis_port
+    app_conf.app.config['CACHE_REDIS_DB'] = redis_db
+
     cache = Cache(app_conf.app)
 
 

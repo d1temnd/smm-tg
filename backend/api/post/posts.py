@@ -14,7 +14,7 @@ get_posts_bp = Blueprint('get_posts', __name__, url_prefix='/api/post')
 # TODO: Добавить возможность фильтрации по каналу
 # TODO: Добавить кэширование в redis
 @get_posts_bp.route('/all', methods=['GET'])
-@redis_conf.cache.cached(timeout=300)
+@redis_conf.cache.cached(timeout=30)
 @role_required('admin', 'editor')
 def get_posts():
     posts = db.session.query(Post).all()

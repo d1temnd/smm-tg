@@ -65,7 +65,7 @@ services:
     environment:
       - FLASK_APP=app.py
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/smm
-      
+
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
 
@@ -94,7 +94,7 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
-    restart: always
+    # restart: always
     networks:
       - app-network
 
