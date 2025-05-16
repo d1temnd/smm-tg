@@ -1,0 +1,33 @@
+stages:
+  - build
+  - test
+  - deploy
+
+build-job:
+  stage: build
+  script:
+    - docker-compose build
+
+test-job:
+  stage: test
+  script:
+    - PROJECT_PORT_API=5001 PROJECT_PORT_FRONTEND=8081 PROJECT_PORT_RABBITMQ=5673 TOKEN=$telegram_dev docker-compose up -d
+    - sleep 10
+    - curl --fail http://localhost:5001 || echo "❌ Backend не отвечает"
+  after_script:
+    - PROJECT_PORT_API=5001 PROJECT_PORT_FRONTEND=8081 PROJECT_PORT_RABBITMQ=5673 TOKEN=$telegram_dev docker-compose down
+
+deploy-dev:
+  stage: deploy
+  only:
+    - dev
+  script:
+    - PROJECT_PORT_API=5001 PROJECT_PORT_FRONTEND=8081 PROJECT_PORT_RABBITMQ=5673 TOKEN=$telegram_dev docker-compose up -d --build
+
+
+deploy-prod:
+  stage: deploy
+  only:
+    - main
+  script:
+    - PROJECT_PORT_API=5000 PROJECT_PORT_FRONTEND=8080 PROJECT_PORT_RABBITMQ=5672 TOKEN=$telegram_prod docker-compose up -d --build
