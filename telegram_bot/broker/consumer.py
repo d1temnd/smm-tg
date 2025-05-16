@@ -2,6 +2,7 @@ from pika import BlockingConnection
 import json
 from config import rabbitmq_conf, bot_conf
 import base64
+from utils import escape_markdown_v2
 
 
 def callback(ch, method, properties, body):
@@ -9,7 +10,7 @@ def callback(ch, method, properties, body):
     # print(f"Получено сообщение: {message}, {type(message)}")
     # print(f'{message.get('test')}')
     chat_id = message.get('chat_id')
-    mgs = message.get('message')
+    mgs = escape_markdown_v2(message.get('message'))
     file = message.get('file')
     media_id = message.get('media_id')
 
