@@ -6,8 +6,8 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: smm
       POSTGRES_HOST_AUTH_METHOD: trust
-    ports:
-      - "5432:5432"
+    # ports:
+    #   - "5432:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
     networks:
@@ -20,8 +20,8 @@ services:
     
   redis:
     image: redis:7.2
-    ports:
-      - "6379:6379"
+    # ports:
+    #   - "6379:6379"
     volumes:
       - ./redis_data:/data
     healthcheck:
@@ -35,8 +35,8 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${PROJECT_PORT_RABBITMQ:-5672}:5672"
+      # - "15672:15672"
     networks:
       - app-network
     healthcheck:
@@ -50,7 +50,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "8080:80"
+      - "${PROJECT_PORT_FRONTEND:-80}:80"
     networks:
       - app-network
     depends_on:
@@ -61,7 +61,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "${PROJECT_PORT_API:-5000}:5000"
     environment:
       - FLASK_APP=app.py
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/smm
