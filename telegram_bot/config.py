@@ -8,5 +8,5 @@ class rabbitmq_conf:
     )
 
 class bot_conf:
-    TOKEN = '8024142689:AAEFC_9tDl-irCYIeiJ6W3Yx5Zj1Hnvu4NE'
+    TOKEN = os.getenv('telegram_token')
     bot = telebot.TeleBot(TOKEN)
