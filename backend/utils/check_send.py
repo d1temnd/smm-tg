@@ -8,7 +8,7 @@ from models.media import Media
 from broker.producer import send_message
 from models.channel import Channel
 
-def send_post(post):
+def send_post(post) -> None:
     print(f"Отправка поста {post.id}")
     with app_conf.app.app_context():
         media = post.preview_image  # используем relationship, а не query

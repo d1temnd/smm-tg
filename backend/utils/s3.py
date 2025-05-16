@@ -3,7 +3,7 @@ from io import BytesIO
 from models import db
 from models.media import Media
 
-def upload_s3(file, filename):
+def upload_s3(file: str, filename: str) -> str:
 
     boto3_conf.s3_client.upload_fileobj(
                     Fileobj=file,
@@ -17,7 +17,7 @@ def upload_s3(file, filename):
 
 
 
-def get_file_s3(s3_key: str):
+def get_file_s3(s3_key: str) -> bytes:
     with app_conf.app.app_context():
         media = db.session.query(Media).filter_by(s3_key=s3_key).first()
         if not media:

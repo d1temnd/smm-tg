@@ -92,11 +92,11 @@ services:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
 
-      - telegram_token=${TOKEN}
+      - TOKEN=${TOKEN}
     depends_on:
       rabbitmq:
         condition: service_healthy
-    # restart: always
+    restart: always
     networks:
       - app-network
 

@@ -13,7 +13,7 @@ db.init_app(app_conf.app)
 register_routes(app_conf.app)
 
 
-def main():
+def main() -> None:
     with app_conf.app.app_context():
         
         db.create_all()
