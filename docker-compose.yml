@@ -61,7 +61,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "127.0.0.1:5000:5000"
+      - "5000:5000"
     environment:
       - FLASK_APP=app.py
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/smm
