@@ -1,5 +1,5 @@
 services:
-  postgres:
+  ${PROJECT}_postgres:
     image: postgres:15
     environment:
       POSTGRES_USER: postgres
@@ -18,7 +18,7 @@ services:
       timeout: 5s
       retries: 5
     
-  redis:
+  ${PROJECT}_redis:
     image: redis:7.2
     # ports:
     #   - "6379:6379"
@@ -32,7 +32,7 @@ services:
     networks:
       - app-network
 
-  rabbitmq:
+  ${PROJECT}_rabbitmq:
     image: rabbitmq:3-management
     ports:
       - "${PROJECT_PORT_RABBITMQ:-5672}:5672"
@@ -45,7 +45,7 @@ services:
       timeout: 5s
       retries: 5
 
-  frontend:
+  ${PROJECT}_frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -56,7 +56,7 @@ services:
     depends_on:
       - backend
 
-  backend:
+  ${PROJECT}_backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -84,13 +84,15 @@ services:
     networks:
       - app-network
 
-  telegram_bot:
+  ${PROJECT}_telegram_bot:
     build:
       context: ./telegram_bot
       dockerfile: Dockerfile
     environment:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
+
+      - telegram_token = ${telegram_prod}
     depends_on:
       rabbitmq:
         condition: service_healthy
