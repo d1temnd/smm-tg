@@ -4,7 +4,9 @@ from config import rabbitmq_conf, app_conf
 from models import db
 from models.channel import Channel
 
-def callback(ch, method, properties, body):
+def callback(ch, method, properties, body: str) -> None:
+    data: json
+
     try:
         data = json.loads(body)
         if data.get('action') == 'add':
