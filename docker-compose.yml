@@ -6,8 +6,6 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: smm
       POSTGRES_HOST_AUTH_METHOD: trust
-    # ports:
-    #   - "5432:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
     networks:
@@ -17,11 +15,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    
+
   ${PROJECT}_redis:
     image: redis:7.2
-    # ports:
-    #   - "6379:6379"
     volumes:
       - ./redis_data:/data
     healthcheck:
@@ -36,7 +32,6 @@ services:
     image: rabbitmq:3-management
     ports:
       - "${PROJECT_PORT_RABBITMQ:-5672}:5672"
-      # - "15672:15672"
     networks:
       - app-network
     healthcheck:
@@ -50,11 +45,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "${PROJECT_PORT_FRONTEND:-80}:80"
+      - "${PROJECT_PORT_FRONTEND:-8080}:80"
     networks:
       - app-network
     depends_on:
-      - backend
+      - ${PROJECT}_backend
 
   ${PROJECT}_backend:
     build:
@@ -64,22 +59,19 @@ services:
       - "${PROJECT_PORT_API:-5000}:5000"
     environment:
       - FLASK_APP=app.py
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/smm
-
-      - RABBITMQ_HOST=rabbitmq
+      - DATABASE_URL=postgresql://postgres:postgres@${PROJECT}_postgres:5432/smm
+      - RABBITMQ_HOST=${PROJECT}_rabbitmq
       - RABBITMQ_PORT=5672
-
-      - REDIS_HOST=redis
+      - REDIS_HOST=${PROJECT}_redis
       - REDIS_PORT=6379
       - REDIS_DB=1
-
-      - CORS_ORIGINS=http://localhost:8080
+      - CORS_ORIGINS=http://localhost:${PROJECT_PORT_FRONTEND:-8080}
     depends_on:
-      postgres:
+      ${PROJECT}_postgres:
         condition: service_healthy
-      rabbitmq:
+      ${PROJECT}_rabbitmq:
         condition: service_healthy
-      redis:
+      ${PROJECT}_redis:
         condition: service_healthy
     networks:
       - app-network
@@ -89,12 +81,11 @@ services:
       context: ./telegram_bot
       dockerfile: Dockerfile
     environment:
-      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_HOST=${PROJECT}_rabbitmq
       - RABBITMQ_PORT=5672
-
-      - telegram_token = ${telegram_prod}
+      - TELEGRAM_TOKEN=${telegram_prod}
     depends_on:
-      rabbitmq:
+      ${PROJECT}_rabbitmq:
         condition: service_healthy
     # restart: always
     networks:
