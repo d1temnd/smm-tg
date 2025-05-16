@@ -94,7 +94,7 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
-    # restart: always
+    restart: always
     networks:
       - app-network
 
