@@ -1,11 +1,13 @@
 services:
-  ${PROJECT}_postgres:
+  $postgres:
     image: postgres:15
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: smm
       POSTGRES_HOST_AUTH_METHOD: trust
+    # ports:
+    #   - "5432:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
     networks:
@@ -15,9 +17,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-  ${PROJECT}_redis:
+    
+  redis:
     image: redis:7.2
+    # ports:
+    #   - "6379:6379"
     volumes:
       - ./redis_data:/data
     healthcheck:
@@ -28,10 +32,11 @@ services:
     networks:
       - app-network
 
-  ${PROJECT}_rabbitmq:
+  rabbitmq:
     image: rabbitmq:3-management
     ports:
       - "${PROJECT_PORT_RABBITMQ:-5672}:5672"
+      # - "15672:15672"
     networks:
       - app-network
     healthcheck:
@@ -40,18 +45,18 @@ services:
       timeout: 5s
       retries: 5
 
-  ${PROJECT}_frontend:
+  frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "${PROJECT_PORT_FRONTEND:-8080}:80"
+      - "${PROJECT_PORT_FRONTEND:-80}:80"
     networks:
       - app-network
     depends_on:
-      - ${PROJECT}_backend
+      - backend
 
-  ${PROJECT}_backend:
+  backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -59,33 +64,37 @@ services:
       - "${PROJECT_PORT_API:-5000}:5000"
     environment:
       - FLASK_APP=app.py
-      - DATABASE_URL=postgresql://postgres:postgres@${PROJECT}_postgres:5432/smm
-      - RABBITMQ_HOST=${PROJECT}_rabbitmq
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/smm
+
+      - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
-      - REDIS_HOST=${PROJECT}_redis
+
+      - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_DB=1
-      - CORS_ORIGINS=http://localhost:${PROJECT_PORT_FRONTEND:-8080}
+
+      - CORS_ORIGINS=http://localhost:8080
     depends_on:
-      ${PROJECT}_postgres:
+      postgres:
         condition: service_healthy
-      ${PROJECT}_rabbitmq:
+      rabbitmq:
         condition: service_healthy
-      ${PROJECT}_redis:
+      redis:
         condition: service_healthy
     networks:
       - app-network
 
-  ${PROJECT}_telegram_bot:
+  telegram_bot:
     build:
       context: ./telegram_bot
       dockerfile: Dockerfile
     environment:
-      - RABBITMQ_HOST=${PROJECT}_rabbitmq
+      - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
-      - TELEGRAM_TOKEN=${telegram_prod}
+
+      - telegram_token = ${TOKEN}
     depends_on:
-      ${PROJECT}_rabbitmq:
+      rabbitmq:
         condition: service_healthy
     # restart: always
     networks:
